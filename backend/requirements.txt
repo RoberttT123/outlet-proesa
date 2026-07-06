@@ -6,4 +6,5 @@ itsdangerous
 pandas
 openpyxl
 pytz
+cloudinary  
 python-multipart
