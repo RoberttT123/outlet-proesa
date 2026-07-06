@@ -31,9 +31,6 @@ class Settings:
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()
-@app.get("/")
-def read_root():
-    return {"message": "API de Outlet Proesa corriendo exitosamente"}
 
 @lru_cache()
 def get_supabase() -> Client:

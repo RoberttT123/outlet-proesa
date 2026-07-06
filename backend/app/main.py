@@ -47,9 +47,7 @@ app.include_router(productos.router)
 @app.get("/api/health")
 def health_check():
     return {"status": "ok", "service": "Outlet PROESA API"}
-@app.get("/")
-def read_root():
-    return {"message": "API de Outlet Proesa corriendo exitosamente"}
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SERVIR BUILD DE REACT (producción)
