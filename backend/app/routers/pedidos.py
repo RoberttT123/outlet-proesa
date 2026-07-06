@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger(__name__)
+
 # -*- coding: utf-8 -*-
 """
 ROUTER: PEDIDOS - OUTLET PROESA API
@@ -41,18 +44,22 @@ def crear_pedido(payload: CrearPedidoRequest, sesion: dict = Depends(obtener_ses
     if not items:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El carrito está vacío.")
 
+    logger.info(f"Creando pedido para {sesion['cod_emp']} con {len(items)} items")
     codigos = [i.codigo_producto.strip() for i in items]
+    logger.info(f"Códigos: {codigos}")
 
     # 1. Resolver productos y verificar stock disponible
     try:
         prods_resp = (
-            sb.table("productos")
+            sb.table("catalogo_campana")
             .select("id, codigo, nombre, stock")
             .in_("codigo", codigos)
             .execute()
         )
         mapa_productos = {p["codigo"]: p for p in (prods_resp.data or [])}
+        logger.info(f"Productos encontrados: {list(mapa_productos.keys())}")
     except Exception as e:
+        logger.error(f"Error leyendo catalogo_campana: {e}")
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY,
                              detail=f"Error leyendo productos: {e}")
 
@@ -121,12 +128,14 @@ def crear_pedido(payload: CrearPedidoRequest, sesion: dict = Depends(obtener_ses
         )
         empleado_id = emp_resp.data["id"]
 
+        logger.info(f"Insertando pedido para empleado {empleado_id}")
         pedido_resp = (
             sb.table("pedidos")
             .insert({"empleado_id": empleado_id, "estado": "procesado", "created_at": timestamp})
             .select("id")
             .execute()
         )
+        logger.info(f"Pedido creado: {pedido_resp.data}")
         if not pedido_resp.data:
             raise Exception("No se pudo crear la cabecera del pedido")
         pedido_id = pedido_resp.data[0]["id"]
@@ -140,7 +149,7 @@ def crear_pedido(payload: CrearPedidoRequest, sesion: dict = Depends(obtener_ses
             subtotal  = round(item.precio_unitario * item.cantidad, 2)
             filas_items.append({
                 "pedido_id":        pedido_id,
-                "producto_id":      prod["id"],
+                "producto_id":      None,   # catalogo_campana no referencia productos
                 "nombre_producto":  item.producto,
                 "codigo_producto":  codigo,
                 "linea":            item.linea or "",
