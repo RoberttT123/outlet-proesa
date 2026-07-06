@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+supabase
+python-dotenv
+itsdangerous
+pandas
+openpyxl
+pytz
+python-multipart
