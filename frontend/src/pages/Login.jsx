@@ -9,7 +9,7 @@ export default function Login() {
   const [cargando, setCargando] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
-
+  const [mostrarCarnet, setMostrarCarnet] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -57,15 +57,32 @@ export default function Login() {
             autoComplete="username"
           />
 
-          <label style={styles.label}>Número de Carnet</label>
-          <input
-            type="text"
-            value={carnet}
-            onChange={(e) => setCarnet(e.target.value)}
-            placeholder="Ej: 12345678"
-            style={styles.input}
-            autoComplete="current-password"
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              type={mostrarCarnet ? 'text' : 'password'}
+              value={carnet}
+              onChange={(e) => setCarnet(e.target.value)}
+              placeholder="Ingresa tu carnet"
+              style={styles.input}
+              autoComplete="current-password"
+            />
+
+            <button
+              type="button"
+              onClick={() => setMostrarCarnet(!mostrarCarnet)}
+              style={{
+                position: 'absolute',
+                right: 10,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer'
+              }}
+            >
+              {mostrarCarnet ? '🙈' : '👁️'}
+            </button>
+          </div>
 
           {error && <div style={styles.error}>⚠️ {error}</div>}
 
