@@ -1,11 +1,15 @@
 import axios from 'axios'
 
-// withCredentials: true es CRÍTICO — sin esto el navegador no envía
-// la cookie de sesión HttpOnly en las peticiones, y todo el backend
-// respondería 401 aunque el login haya sido exitoso.
+// En desarrollo: el proxy de Vite redirige /api → localhost:8010
+// En producción: VITE_API_URL apunta al backend en Render
+// Ej: https://outlet-proesa-api.onrender.com
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api'
+
 const api = axios.create({
-  baseURL: '/api',
-  withCredentials: true,
+  baseURL: BASE_URL,
+  withCredentials: true,   // imprescindible para cookies de sesión
   headers: { 'Content-Type': 'application/json' },
 })
 

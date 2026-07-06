@@ -21,7 +21,7 @@ class Settings:
     SESSION_COOKIE_NAME: str = "outlet_session"
     SESSION_MAX_AGE_SECONDS: int = 60 * 60 * 12   # 12 horas
 
-    CORS_ORIGINS: list = os.environ.get("CORS_ORIGINS", "http://localhost:5192").split(",")
+    CORS_ORIGINS: list = os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(",")
 
     CLOUDINARY_CLOUD_NAME: str = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
     CLOUDINARY_API_KEY: str    = os.environ.get("CLOUDINARY_API_KEY", "")

@@ -1,3 +1,4 @@
+import os
 # -*- coding: utf-8 -*-
 """
 ROUTER: AUTENTICACIÓN - OUTLET PROESA API
@@ -57,13 +58,16 @@ def login(payload: LoginRequest, response: Response):
 
     token = crear_token_sesion(sesion_payload)
 
+    # En producción (HTTPS) secure=True — en local puede ser False
+    es_produccion = os.environ.get("RENDER") is not None
+
     response.set_cookie(
         key=settings.SESSION_COOKIE_NAME,
         value=token,
         max_age=settings.SESSION_MAX_AGE_SECONDS,
         httponly=True,
-        samesite="lax",
-        secure=False,   # Cambiar a True en producción con HTTPS
+        samesite="none" if es_produccion else "lax",
+        secure=es_produccion,
         path="/",
     )
 

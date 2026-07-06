@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   server: {
-    port: 5192,
+    port: 5191,
     proxy: {
+      // Solo activo en desarrollo local
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:8010',
         changeOrigin: true,
       },
     },
@@ -15,4 +16,4 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
-})
+}))
