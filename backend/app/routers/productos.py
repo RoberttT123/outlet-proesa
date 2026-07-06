@@ -123,6 +123,7 @@ def crear_producto(payload: ProductoCreate, sesion: dict = Depends(requerir_admi
                 "empresa_id": empresa_id,
                 "activo":     True,
             })
+            .select()
             .execute()
         )
     except Exception as e:

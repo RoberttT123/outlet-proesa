@@ -124,8 +124,11 @@ def crear_pedido(payload: CrearPedidoRequest, sesion: dict = Depends(obtener_ses
         pedido_resp = (
             sb.table("pedidos")
             .insert({"empleado_id": empleado_id, "estado": "procesado", "created_at": timestamp})
+            .select("id")
             .execute()
         )
+        if not pedido_resp.data:
+            raise Exception("No se pudo crear la cabecera del pedido")
         pedido_id = pedido_resp.data[0]["id"]
 
         filas_items = []
@@ -149,7 +152,7 @@ def crear_pedido(payload: CrearPedidoRequest, sesion: dict = Depends(obtener_ses
                 "subtotal":         subtotal,
             })
 
-        sb.table("pedido_items").insert(filas_items).execute()
+        sb.table("pedido_items").insert(filas_items).select("id").execute()
 
     except Exception as e:
         # Rollback de stock si falla el guardado del pedido
