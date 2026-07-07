@@ -121,8 +121,8 @@ const styles = {
     boxShadow: '0 10px 30px rgba(15,52,96,0.25)',
   },
   heroLogo: {
-    width: 60,          // antes 80
-    height: 60,
+    width: 150,          // antes 80
+    height: 150,
     objectFit: 'contain',
     marginBottom: '0.15rem',
   },
