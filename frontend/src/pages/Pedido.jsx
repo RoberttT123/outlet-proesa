@@ -15,6 +15,16 @@ export default function Pedido() {
   const [filtro, setFiltro] = useState('')
   const [toast, setToast] = useState(null)
 
+  // ── Recargar catálogo desde el servidor (invalida caché local) ──────────────
+  const recargarCatalogo = () => {
+    setCargandoProductos(true)
+    catalogoApi
+      .listarProductos()
+      .then(({ data }) => setProductos(data))
+      .catch(() => {})
+      .finally(() => setCargandoProductos(false))
+  }
+
   // ── Verificar outlet activo al cargar ───────────────────────────────────────
   useEffect(() => {
     catalogoApi
@@ -89,7 +99,7 @@ export default function Pedido() {
             onAgregar={mostrarToast}
           />
         )}
-        {tab === 'carrito' && <TabCarrito onIrCatalogo={() => setTab('catalogo')} onToast={mostrarToast} />}
+        {tab === 'carrito' && <TabCarrito onIrCatalogo={() => setTab('catalogo')} onToast={mostrarToast} onPedidoExitoso={recargarCatalogo} />}
         {tab === 'historial' && <TabHistorial />}
       </main>
 
@@ -254,7 +264,7 @@ function Badge({ stock }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // TAB CARRITO
 // ══════════════════════════════════════════════════════════════════════════════
-function TabCarrito({ onIrCatalogo, onToast }) {
+function TabCarrito({ onIrCatalogo, onToast, onPedidoExitoso }) {
   const carrito = useCarrito()
   const [enviando, setEnviando] = useState(false)
   const [colision, setColision] = useState(null)
@@ -267,6 +277,7 @@ function TabCarrito({ onIrCatalogo, onToast }) {
       if (data.exito) {
         carrito.limpiarCarrito()
         onToast('¡Tu pedido fue enviado con éxito!', '🎉')
+        onPedidoExitoso()   // recarga stock actualizado desde Supabase
       } else {
         setColision(data.sin_stock)
       }

@@ -238,3 +238,14 @@ def eliminar_producto(producto_id: str, sesion: dict = Depends(requerir_admin)):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
     return {"ok": True}
+
+
+@router.get("/lineas")
+def listar_lineas(sesion: dict = Depends(requerir_admin)):
+    """Devuelve todas las líneas disponibles para el selector del modal."""
+    sb = get_supabase()
+    try:
+        resp = sb.table("lineas").select("id, nombre").order("nombre").execute()
+        return resp.data or []
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))

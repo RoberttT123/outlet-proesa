@@ -237,9 +237,16 @@ function ModalProducto({ producto, cloudinaryCfg, onClose, onGuardado, onError }
     codigo:  producto?.codigo  ?? '',
     nombre:  producto?.nombre  ?? '',
     linea:   producto?.linea   ?? '',
-    empresa: producto?.empresa ?? '',
+    empresa: producto?.empresa ?? 'PROESA',
     activo:  producto?.activo  ?? true,
   })
+  const [lineas, setLineas] = useState([])
+
+  useEffect(() => {
+    productosApi.listarLineas()
+      .then(({ data }) => setLineas(data))
+      .catch(() => {})
+  }, [])
   const [imgSrc, setImgSrc]           = useState(producto?.cloudinary_url ?? null)
   const [imgPublicId, setImgPublicId] = useState(producto?.cloudinary_public_id ?? null)
   const [imgProgress, setImgProgress] = useState(0)
@@ -300,8 +307,8 @@ function ModalProducto({ producto, cloudinaryCfg, onClose, onGuardado, onError }
       const payload = {
         codigo:  form.codigo.trim(),
         nombre:  form.nombre.trim(),
-        linea:   form.linea.trim()   || null,
-        empresa: form.empresa.trim() || null,
+        linea:   form.linea   || null,
+        empresa: form.empresa || null,
         activo:  form.activo,
       }
 
@@ -373,25 +380,41 @@ function ModalProducto({ producto, cloudinaryCfg, onClose, onGuardado, onError }
               <Field label="Código *" value={form.codigo}
                 onChange={(v) => setField('codigo', v)}
                 placeholder="Ej: 110177" disabled={!esNuevo} />
-              <Field label="Línea" value={form.linea}
-                onChange={(v) => setField('linea', v)}
-                placeholder="Ej: Limpieza" />
+              <div style={s.fieldGroup}>
+                <label style={s.fieldLabel}>Empresa *</label>
+                <select
+                  value={form.empresa}
+                  onChange={(e) => setField('empresa', e.target.value)}
+                  style={s.selectField}
+                >
+                  <option value="PROESA">PROESA</option>
+                  <option value="LOGMARK">LOGMARK</option>
+                </select>
+              </div>
             </div>
             <Field label="Nombre *" value={form.nombre}
               onChange={(v) => setField('nombre', v)}
               placeholder="Nombre completo del producto" />
-            <div style={s.fieldRow}>
-              <Field label="Empresa" value={form.empresa}
-                onChange={(v) => setField('empresa', v)}
-                placeholder="Ej: PROESA" />
-              <div style={s.checkField}>
-                <label style={s.checkLabel}>
-                  <input type="checkbox" checked={form.activo}
-                    onChange={(e) => setField('activo', e.target.checked)}
-                    style={{ marginRight: 6 }} />
-                  Producto activo
-                </label>
-              </div>
+            <div style={s.fieldGroup}>
+              <label style={s.fieldLabel}>Línea</label>
+              <select
+                value={form.linea}
+                onChange={(e) => setField('linea', e.target.value)}
+                style={s.selectField}
+              >
+                <option value="">— Sin línea —</option>
+                {lineas.map((l) => (
+                  <option key={l.id} value={l.nombre}>{l.nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div style={s.checkField}>
+              <label style={s.checkLabel}>
+                <input type="checkbox" checked={form.activo}
+                  onChange={(e) => setField('activo', e.target.checked)}
+                  style={{ marginRight: 6 }} />
+                Producto activo
+              </label>
             </div>
           </div>
         </div>
@@ -509,6 +532,10 @@ const s = {
   input: { padding: '0.6rem 0.85rem', border: '1px solid #DDD', borderRadius: 8, fontSize: '0.88rem', outline: 'none', width: '100%', boxSizing: 'border-box' },
   checkField: { display: 'flex', alignItems: 'flex-end', paddingBottom: '0.1rem' },
   checkLabel: { fontSize: '0.85rem', color: '#444', cursor: 'pointer', display: 'flex', alignItems: 'center' },
+  selectField: {
+    padding: '0.6rem 0.85rem', border: '1px solid #DDD', borderRadius: 8,
+    fontSize: '0.88rem', background: 'white', width: '100%', boxSizing: 'border-box',
+  },
   btnCancelar: { padding: '0.6rem 1.25rem', background: '#F5F5F5', border: '1px solid #DDD', borderRadius: 8, cursor: 'pointer', fontSize: '0.88rem', color: '#666' },
   btnGuardar:  { padding: '0.6rem 1.5rem', background: '#E63946', color: 'white', border: 'none', borderRadius: 8, fontSize: '0.88rem', fontWeight: 700, transition: 'opacity 0.15s' },
   toast: { position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', color: 'white', padding: '0.75rem 1.5rem', borderRadius: 30, fontSize: '0.88rem', boxShadow: '0 4px 20px rgba(0,0,0,0.25)', zIndex: 2000, whiteSpace: 'nowrap' },

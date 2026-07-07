@@ -81,4 +81,5 @@ export const productosApi = {
   eliminarImagen:   (id)            => api.delete(`/admin/productos/${id}/imagen`),
   eliminar:         (id)            => api.delete(`/admin/productos/${id}`),
   cloudinaryConfig: ()              => api.get('/admin/productos/cloudinary-config'),
+  listarLineas:     ()              => api.get('/admin/productos/lineas'),
 }
