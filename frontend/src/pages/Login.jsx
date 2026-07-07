@@ -97,7 +97,7 @@ export default function Login() {
 
 const styles = {
   page: {
-    minHeight: '100dvh',       // clave: dvh en vez de vh para mobile
+    minHeight: '100svh',       // clave: dvh en vez de vh para mobile
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
