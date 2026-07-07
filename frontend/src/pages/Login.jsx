@@ -39,7 +39,7 @@ export default function Login() {
     <div style={styles.page}>
       <div style={styles.card}>
         <div style={styles.hero}>
-          <div style={styles.heroIcon}>📦</div>
+          <img src="/logo_proesa.png" alt="Outlet PROESA" style={styles.heroLogo} />
           <h1 style={styles.heroTitle}>Outlet PROESA</h1>
           <p style={styles.heroSubtitle}>Sistema de Pedidos Internos</p>
         </div>
@@ -118,15 +118,12 @@ const styles = {
     marginBottom: '1.5rem',
     boxShadow: '0 10px 30px rgba(15,52,96,0.25)',
   },
-  heroIcon: { fontSize: '3.5rem' },
-  heroTitle: { fontSize: '1.8rem', fontWeight: 700, margin: '0.75rem 0 0.25rem' },
-  heroSubtitle: { opacity: 0.75, fontSize: '0.9rem', margin: 0 },
-  form: {
-    background: 'white',
-    borderRadius: 16,
-    padding: '1.75rem',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-  },
+    heroLogo: {
+      width: 80,
+      height: 80,
+      objectFit: 'contain',
+      marginBottom: '0.25rem',
+    },
   formTitle: { fontSize: '1.1rem', fontWeight: 600, color: '#1A1A2E', margin: '0 0 1.25rem' },
   label: { display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#444', marginBottom: '0.35rem' },
   input: {
