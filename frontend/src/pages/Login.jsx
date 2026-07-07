@@ -97,13 +97,15 @@ export default function Login() {
 
 const styles = {
   page: {
-    minHeight: '100vh',
+    minHeight: '100dvh',       // clave: dvh en vez de vh para mobile
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     background: '#F5F4F0',
     fontFamily: "'DM Sans', -apple-system, sans-serif",
     padding: '1rem',
+    boxSizing: 'border-box',
+    overflow: 'hidden',        // evita cualquier scroll accidental
   },
   card: {
     width: '100%',
@@ -112,27 +114,35 @@ const styles = {
   hero: {
     background: 'linear-gradient(135deg, #1A1A2E 0%, #0F3460 100%)',
     borderRadius: 20,
-    padding: '2.5rem 2rem 2rem',
+    padding: '1.5rem 1.5rem 1.25rem',   // antes 2.5rem/2rem, ahora más compacto
     textAlign: 'center',
     color: 'white',
-    marginBottom: '1.5rem',
+    marginBottom: '1rem',               // antes 1.5rem
     boxShadow: '0 10px 30px rgba(15,52,96,0.25)',
   },
-    heroLogo: {
-      width: 80,
-      height: 80,
-      objectFit: 'contain',
-      marginBottom: '0.25rem',
-    },
-  formTitle: { fontSize: '1.1rem', fontWeight: 600, color: '#1A1A2E', margin: '0 0 1.25rem' },
-  label: { display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#444', marginBottom: '0.35rem' },
+  heroLogo: {
+    width: 60,          // antes 80
+    height: 60,
+    objectFit: 'contain',
+    marginBottom: '0.15rem',
+  },
+  heroTitle: { fontSize: '1.5rem', fontWeight: 700, margin: '0.5rem 0 0.15rem' }, // antes 1.8rem
+  heroSubtitle: { opacity: 0.75, fontSize: '0.85rem', margin: 0 },
+  form: {
+    background: 'white',
+    borderRadius: 16,
+    padding: '1.25rem 1.5rem',   // antes 1.75rem
+    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+  },
+  formTitle: { fontSize: '1rem', fontWeight: 600, color: '#1A1A2E', margin: '0 0 1rem' },
+  label: { display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#444', marginBottom: '0.3rem' },
   input: {
     width: '100%',
-    padding: '0.65rem 0.85rem',
+    padding: '0.6rem 0.85rem',
     border: '1px solid #DDD',
     borderRadius: 8,
     fontSize: '0.95rem',
-    marginBottom: '1rem',
+    marginBottom: '0.85rem',
     boxSizing: 'border-box',
     outline: 'none',
   },
@@ -142,11 +152,11 @@ const styles = {
     padding: '0.6rem 0.85rem',
     borderRadius: 8,
     fontSize: '0.85rem',
-    marginBottom: '1rem',
+    marginBottom: '0.85rem',
   },
   button: {
     width: '100%',
-    padding: '0.75rem',
+    padding: '0.7rem',
     background: '#E63946',
     color: 'white',
     border: 'none',
