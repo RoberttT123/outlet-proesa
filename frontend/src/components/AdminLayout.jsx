@@ -17,7 +17,6 @@ export default function AdminLayout({ children, titulo, subtitulo }) {
 
         <div style={styles.adminInfo}>
           <div style={styles.adminNombre}>👤 {usuario?.nombre}</div>
-          <div style={styles.adminCod}>🔖 {usuario?.cod_emp}</div>
         </div>
 
         <div style={styles.navLabel}>NAVEGACIÓN</div>

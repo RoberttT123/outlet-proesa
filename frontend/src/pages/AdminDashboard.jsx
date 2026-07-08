@@ -107,7 +107,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout titulo="Dashboard" subtitulo="Análisis operativo en tiempo real">
+    <AdminLayout titulo="Dashboard" subtitulo="Análisis operativo">
 
       {/* ══ MÉTRICAS ══════════════════════════════════════════════════════ */}
       <SectionTitle>Resumen General</SectionTitle>

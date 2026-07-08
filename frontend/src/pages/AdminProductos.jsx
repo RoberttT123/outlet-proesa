@@ -87,12 +87,12 @@ export default function AdminProductos() {
   const handleBusqueda = (v) => { setBusqueda(v); setPagina(1) }
 
   return (
-    <AdminLayout titulo="Productos" subtitulo="Catálogo permanente · Precio y stock se actualizan desde los catálogos de campaña">
+    <AdminLayout titulo="Productos" subtitulo="Inventario de productos">
 
       {/* ── INFO BANNER ── */}
       <div style={s.infoBanner}>
         💡 Los productos aquí guardados se vinculan automáticamente al catálogo de campaña por <strong>código</strong>.
-        El precio y stock los gestiona el Excel de cada campaña — aquí solo administras la información permanente e imágenes.
+        Actualiza la información e imágenes.
       </div>
 
       {/* ── BARRA SUPERIOR ── */}
