@@ -5,6 +5,25 @@ import AdminLayout from '../components/AdminLayout'
 
 const OPCIONES_POR_PAGINA = [10, 20, 30, 50]
 
+// Convierte fecha UTC a hora Bolivia (UTC-4)
+function formatearFechaBO(fechaStr) {
+  if (!fechaStr) return '—'
+  try {
+    const fecha = new Date(fechaStr)
+    return fecha.toLocaleString('es-BO', {
+      timeZone: 'America/La_Paz',
+      day:    '2-digit',
+      month:  '2-digit',
+      year:   'numeric',
+      hour:   '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })
+  } catch {
+    return fechaStr
+  }
+}
+
 export default function AdminDashboard() {
   const [metricas, setMetricas]   = useState(null)
   const [historial, setHistorial] = useState(null)
@@ -73,7 +92,7 @@ export default function AdminDashboard() {
       'Línea', 'Precio Unitario', 'Cantidad', 'Subtotal', 'Estado',
     ]
     const filas = historialFiltrado.map((r) => ({
-      'Fecha':             r.fecha_pedido ? r.fecha_pedido.slice(0, 16).replace('T', ' ') : '',
+      'Fecha':             formatearFechaBO(r.fecha_pedido),
       'Cód. Empleado':     r.cod_empleado || '',
       'Nombre Empleado':   r.nombre_empleado || '',
       'Empresa':           r.empresa_empleado || '',
@@ -107,7 +126,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout titulo="Dashboard" subtitulo="Análisis operativo">
+    <AdminLayout titulo="Dashboard" subtitulo="Análisis operativo en tiempo real">
 
       {/* ══ MÉTRICAS ══════════════════════════════════════════════════════ */}
       <SectionTitle>Resumen General</SectionTitle>
@@ -209,7 +228,7 @@ export default function AdminDashboard() {
               <tbody>
                 {historialPag.map((r, i) => (
                   <tr key={i} style={i % 2 !== 0 ? s.trAlt : {}}>
-                    <td style={s.td}>{r.fecha_pedido ? r.fecha_pedido.slice(0, 16).replace('T', ' ') : '—'}</td>
+                    <td style={s.td}>{formatearFechaBO(r.fecha_pedido)}</td>
                     <td style={s.td}>
                       <div style={{ fontWeight: 500 }}>{r.nombre_empleado}</div>
                       <div style={{ fontSize: '0.72rem', color: '#999' }}>{r.cod_empleado}</div>
