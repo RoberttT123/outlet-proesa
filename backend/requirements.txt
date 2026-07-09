@@ -8,3 +8,4 @@ openpyxl
 pytz
 cloudinary  
 python-multipart
+python-jose[cryptography]

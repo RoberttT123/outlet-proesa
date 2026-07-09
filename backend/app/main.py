@@ -30,9 +30,9 @@ app = FastAPI(title="Outlet PROESA API", version="2.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,   # imprescindible para que las cookies viajen
+    allow_credentials=False,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*", "Authorization"],
 )
 
 # ── Routers ────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { authApi } from '../api/client'
+import { authApi, guardarToken, obtenerToken, eliminarToken } from '../api/client'
 
 const AuthContext = createContext(null)
 
@@ -7,12 +7,19 @@ export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null)
   const [cargando, setCargando] = useState(true)
 
-  // Al montar la app, intenta restaurar sesión desde la cookie existente
+  // Al montar: si hay token en localStorage, verificar que sigue válido
   const verificarSesion = useCallback(async () => {
+    const token = obtenerToken()
+    if (!token) {
+      setCargando(false)
+      return
+    }
     try {
       const { data } = await authApi.me()
       setUsuario(data)
     } catch {
+      // Token expirado o inválido — limpiar
+      eliminarToken()
       setUsuario(null)
     } finally {
       setCargando(false)
@@ -22,22 +29,28 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     verificarSesion()
 
-    // Si cualquier request de la API devuelve 401, cerramos sesión local
-    const handleExpirada = () => setUsuario(null)
+    // Si el interceptor detecta 401, cerrar sesión local
+    const handleExpirada = () => {
+      eliminarToken()
+      setUsuario(null)
+    }
     window.addEventListener('sesion-expirada', handleExpirada)
     return () => window.removeEventListener('sesion-expirada', handleExpirada)
   }, [verificarSesion])
 
   const login = async (codigo, carnet) => {
     const { data } = await authApi.login(codigo, carnet)
-    setUsuario(data)
-    return data
+    // Guardar token en localStorage — funciona en WhatsApp y cualquier browser
+    guardarToken(data.access_token)
+    setUsuario(data.usuario)
+    return data.usuario
   }
 
   const logout = async () => {
     try {
       await authApi.logout()
     } finally {
+      eliminarToken()
       setUsuario(null)
     }
   }

@@ -1,25 +1,26 @@
-import os
 # -*- coding: utf-8 -*-
 """
-ROUTER: AUTENTICACIÓN - OUTLET PROESA API
----------------------------------------------
+ROUTER: AUTENTICACIÓN JWT - OUTLET PROESA API
+----------------------------------------------
 Login único para empleados y admin (código + carnet).
-Sesión vía cookie HttpOnly firmada, sin tabla de sesiones en BD.
+Devuelve JWT en el body — el frontend lo guarda en localStorage
+y lo envía en cada request como Authorization: Bearer <token>.
+Funciona en todos los navegadores incluyendo WhatsApp In-App Browser.
 """
 
-from fastapi import APIRouter, Response, Request, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends
 
 from app.core.config import get_settings, get_supabase
-from app.core.security import crear_token_sesion, obtener_sesion_actual
+from app.core.security import crear_token_jwt, obtener_sesion_actual
 from app.models.schemas import LoginRequest, SesionResponse
 
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router   = APIRouter(prefix="/api/auth", tags=["auth"])
 settings = get_settings()
 
 
-@router.post("/login", response_model=SesionResponse)
-def login(payload: LoginRequest, response: Response):
-    sb = get_supabase()
+@router.post("/login")
+def login(payload: LoginRequest):
+    sb     = get_supabase()
     codigo = payload.codigo.strip().upper()
     carnet = payload.carnet.strip()
 
@@ -40,49 +41,44 @@ def login(payload: LoginRequest, response: Response):
         data = None
 
     if not data:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                             detail=f"Código '{codigo}' no registrado en el sistema.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Código '{codigo}' no registrado en el sistema.",
+        )
 
     carnet_bd = str(data.get("carnet") or "").strip()
     if carnet_bd and carnet != carnet_bd:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                             detail="El carnet no coincide. Verifica tus datos.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="El carnet no coincide. Verifica tus datos.",
+        )
 
     sesion_payload = {
         "cod_emp":  data["codigo"],
         "nombre":   data["nombre"],
-        "empresa":  data["empresas"]["nombre"] if data.get("empresas") else "N/A",
+        "empresa":  data["empresas"]["nombre"]  if data.get("empresas")  else "N/A",
         "regional": data["regionales"]["nombre"] if data.get("regionales") else "La Paz",
         "es_admin": bool(data.get("es_admin", False)),
     }
 
-    token = crear_token_sesion(sesion_payload)
+    token = crear_token_jwt(sesion_payload)
 
-    # En producción (HTTPS) secure=True — en local puede ser False
-    es_produccion = os.environ.get("RENDER") is not None
-
-    response.set_cookie(
-        key=settings.SESSION_COOKIE_NAME,
-        value=token,
-        max_age=settings.SESSION_MAX_AGE_SECONDS,
-        httponly=True,
-        samesite="none" if es_produccion else "lax",
-        secure=es_produccion,
-        path="/",
-    )
-
-    return SesionResponse(
-        cod_emp=sesion_payload["cod_emp"],
-        nombre=sesion_payload["nombre"],
-        empresa=sesion_payload["empresa"],
-        regional=sesion_payload["regional"],
-        es_admin=sesion_payload["es_admin"],
-    )
+    return {
+        "access_token": token,
+        "token_type":   "bearer",
+        "usuario": SesionResponse(
+            cod_emp=sesion_payload["cod_emp"],
+            nombre=sesion_payload["nombre"],
+            empresa=sesion_payload["empresa"],
+            regional=sesion_payload["regional"],
+            es_admin=sesion_payload["es_admin"],
+        ),
+    }
 
 
 @router.post("/logout")
-def logout(response: Response):
-    response.delete_cookie(key=settings.SESSION_COOKIE_NAME, path="/")
+def logout():
+    # Con JWT el logout es del lado del cliente (borrar localStorage)
     return {"mensaje": "Sesión cerrada."}
 
 

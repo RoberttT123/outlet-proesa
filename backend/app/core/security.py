@@ -1,52 +1,84 @@
 # -*- coding: utf-8 -*-
 """
-SESIONES POR COOKIE FIRMADA - OUTLET PROESA API
---------------------------------------------------
-Usa itsdangerous para firmar el contenido de la sesión dentro de una
-cookie HttpOnly. No requiere tabla de sesiones en Supabase: el server
-solo verifica la firma y la expiración.
+SEGURIDAD JWT - OUTLET PROESA API
+------------------------------------
+Reemplaza sesiones por cookie con JWT en Authorization header.
+Funciona en todos los navegadores incluyendo WhatsApp In-App Browser.
+
+Token: JWT firmado con HS256, expira en SESSION_MAX_AGE_SECONDS.
+El frontend lo guarda en localStorage y lo envía como:
+  Authorization: Bearer <token>
 """
 
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from datetime import datetime, timedelta, timezone
+from jose import JWTError, jwt
 from fastapi import Request, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import get_settings
 
-settings = get_settings()
-_serializer = URLSafeTimedSerializer(settings.SESSION_SECRET, salt="outlet-proesa-session")
+settings   = get_settings()
+ALGORITHM  = "HS256"
+_bearer    = HTTPBearer(auto_error=False)
 
 
-def crear_token_sesion(payload: dict) -> str:
-    """Firma el payload de sesión (cod_emp, nombre, es_admin, regional, empresa)."""
-    return _serializer.dumps(payload)
+def crear_token_jwt(payload: dict) -> str:
+    """Crea un JWT firmado con expiración."""
+    data = payload.copy()
+    data["exp"] = datetime.now(timezone.utc) + timedelta(
+        seconds=settings.SESSION_MAX_AGE_SECONDS
+    )
+    return jwt.encode(data, settings.SESSION_SECRET, algorithm=ALGORITHM)
 
 
-def leer_token_sesion(token: str) -> dict | None:
-    """Verifica firma y expiración. Retorna None si es inválida o venció."""
+def verificar_token_jwt(token: str) -> dict | None:
+    """Verifica firma y expiración. Retorna payload o None."""
     try:
-        return _serializer.loads(token, max_age=settings.SESSION_MAX_AGE_SECONDS)
-    except (BadSignature, SignatureExpired):
+        return jwt.decode(token, settings.SESSION_SECRET, algorithms=[ALGORITHM])
+    except JWTError:
         return None
 
 
 def obtener_sesion_actual(request: Request) -> dict:
     """
-    Dependency de FastAPI: extrae y valida la sesión desde la cookie.
-    Lanza 401 si no hay sesión válida.
+    Dependency de FastAPI: extrae el JWT del header Authorization.
+    Acepta también el token en query param ?token= como fallback.
+    Lanza 401 si no hay token válido.
     """
-    token = request.cookies.get(settings.SESSION_COOKIE_NAME)
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autenticado.")
+    # 1. Buscar en Authorization: Bearer <token>
+    auth_header = request.headers.get("Authorization", "")
+    token = None
 
-    sesion = leer_token_sesion(token)
+    if auth_header.startswith("Bearer "):
+        token = auth_header[7:]
+
+    # 2. Fallback: query param (para casos edge)
+    if not token:
+        token = request.query_params.get("token")
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No autenticado.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    sesion = verificar_token_jwt(token)
     if sesion is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesión inválida o expirada.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     return sesion
 
 
 def requerir_admin(request: Request) -> dict:
-    """Dependency: exige sesión válida Y rol admin."""
+    """Dependency: exige token válido Y rol admin."""
     sesion = obtener_sesion_actual(request)
     if not sesion.get("es_admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acceso restringido a administradores.")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acceso restringido a administradores.",
+        )
     return sesion

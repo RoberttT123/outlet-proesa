@@ -27,7 +27,7 @@ function formatearFechaBO(fechaStr) {
 export default function AdminDashboard() {
   const [metricas, setMetricas]   = useState(null)
   const [historial, setHistorial] = useState(null)
-  const [filtros, setFiltros]     = useState({ empresa: '', regional: '', busqueda: '' })
+  const [filtros, setFiltros]     = useState({ empresa: '', regional: '', mes: '', busqueda: '' })
   const [porPagina, setPorPagina] = useState(10)
   const [pagina, setPagina]       = useState(1)
 
@@ -51,13 +51,22 @@ export default function AdminDashboard() {
     let data = historial
     if (filtros.empresa)  data = data.filter((r) => r.empresa_empleado === filtros.empresa)
     if (filtros.regional) data = data.filter((r) => r.regional === filtros.regional)
+    if (filtros.mes) {
+      data = data.filter((r) => {
+        if (!r.fecha_pedido) return false
+        const d = new Date(r.fecha_pedido)
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+        return key === filtros.mes
+      })
+    }
     if (filtros.busqueda) {
       const q = filtros.busqueda.toLowerCase()
       data = data.filter(
         (r) =>
-          (r.nombre_empleado || '').toLowerCase().includes(q) ||
-          (r.nombre_producto || '').toLowerCase().includes(q) ||
-          (r.cod_empleado || '').toLowerCase().includes(q)
+          (r.nombre_empleado  || '').toLowerCase().includes(q) ||
+          (r.nombre_producto  || '').toLowerCase().includes(q) ||
+          (r.cod_empleado     || '').toLowerCase().includes(q) ||
+          (r.codigo_producto  || '').toLowerCase().includes(q)
       )
     }
     return data
@@ -155,6 +164,13 @@ export default function AdminDashboard() {
             {regionales.map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
         </div>
+        <div style={s.filtroGrupo}>
+          <label style={s.filtroLabel}>Mes</label>
+          <select value={filtros.mes} onChange={(e) => setFiltro('mes', e.target.value)} style={s.select}>
+            <option value="">Todos</option>
+            {meses.map((m) => <option key={m} value={m}>{formatearMes(m)}</option>)}
+          </select>
+        </div>
         <div style={{ ...s.filtroGrupo, flex: 2 }}>
           <label style={s.filtroLabel}>Buscar</label>
           <input
@@ -167,7 +183,7 @@ export default function AdminDashboard() {
         </div>
         {(filtros.empresa || filtros.regional || filtros.busqueda) && (
           <button
-            onClick={() => { setFiltros({ empresa: '', regional: '', busqueda: '' }); setPagina(1) }}
+            onClick={() => { setFiltros({ empresa: '', regional: '', mes: '', busqueda: '' }); setPagina(1) }}
             style={s.clearBtn}
           >
             ✕ Limpiar
