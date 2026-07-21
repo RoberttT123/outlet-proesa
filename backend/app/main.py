@@ -20,7 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.core.config import get_settings
-from app.routers import auth, catalogo, pedidos, admin, inventario, productos
+from app.routers import auth, catalogo, pedidos, admin, inventario, productos, empleados
 
 settings = get_settings()
 
@@ -42,6 +42,7 @@ app.include_router(pedidos.router)
 app.include_router(admin.router)
 app.include_router(inventario.router)
 app.include_router(productos.router)
+app.include_router(empleados.router)
 
 
 @app.get("/api/health")

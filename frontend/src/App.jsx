@@ -8,6 +8,7 @@ import Pedido         from './pages/Pedido'
 import AdminInicio    from './pages/AdminInicio'
 import AdminDashboard  from './pages/AdminDashboard'
 import AdminProductos  from './pages/AdminProductos'
+import AdminEmpleados from './pages/AdminEmpleados'
 
 export default function App() {
   return (
@@ -52,6 +53,10 @@ export default function App() {
                   <AdminProductos />
                 </RutaProtegida>
               }
+            />
+            <Route path="/admin/empleados" element={
+              <RutaProtegida requiereAdmin><AdminEmpleados /></RutaProtegida>
+            } 
             />
 
             {/* Raíz: redirige al login */}

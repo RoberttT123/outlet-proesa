@@ -23,6 +23,7 @@ export default function AdminLayout({ children, titulo, subtitulo }) {
         <NavItem to="/admin/inicio"     icon="📦" label="Panel de Control" />
         <NavItem to="/admin/dashboard"  icon="📊" label="Dashboard" />
         <NavItem to="/admin/productos"  icon="🏷️"  label="Productos" />
+        <NavItem to="/admin/empleados" icon="👥" label="Empleados" />
 
         <div style={styles.divider} />
 
